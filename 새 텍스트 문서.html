@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>벽돌깨기 게임</title>
+    <style>
+        canvas {
+            display: block;
+            margin: auto;
+            background: black;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="480" height="320"></canvas>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        let ballX = canvas.width / 2;
+        let ballY = canvas.height - 30;
+        let ballDX = 2, ballDY = -2;
+        let ballRadius = 10;
+
+        let paddleWidth = 75, paddleHeight = 10;
+        let paddleX = (canvas.width - paddleWidth) / 2;
+        let rightPressed = false, leftPressed = false;
+
+        document.addEventListener("keydown", keyDownHandler);
+        document.addEventListener("keyup", keyUpHandler);
+
+        function keyDownHandler(e) {
+            if (e.key === "Right" || e.key === "ArrowRight") rightPressed = true;
+            else if (e.key === "Left" || e.key === "ArrowLeft") leftPressed = true;
+        }
+
+        function keyUpHandler(e) {
+            if (e.key === "Right" || e.key === "ArrowRight") rightPressed = false;
+            else if (e.key === "Left" || e.key === "ArrowLeft") leftPressed = false;
+        }
+
+        function drawBall() {
+            ctx.beginPath();
+            ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
+            ctx.fillStyle = "red";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function drawPaddle() {
+            ctx.fillStyle = "white";
+            ctx.fillRect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
+        }
+
+        function update() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBall();
+            drawPaddle();
+
+            if (ballX + ballDX > canvas.width - ballRadius || ballX + ballDX < ballRadius) ballDX = -ballDX;
+            if (ballY + ballDY < ballRadius) ballDY = -ballDY;
+            else if (ballY + ballDY > canvas.height - paddleHeight - ballRadius) {
+                if (ballX > paddleX && ballX < paddleX + paddleWidth) ballDY = -ballDY;
+                else document.location.reload(); // 게임 오버
+            }
+
+            if (rightPressed && paddleX < canvas.width - paddleWidth) paddleX += 5;
+            if (leftPressed && paddleX > 0) paddleX -= 5;
+
+            ballX += ballDX;
+            ballY += ballDY;
+
+            requestAnimationFrame(update);
+        }
+
+        update();
+    </script>
+</body>
+</html>
+<script>
+    document.addEventListener("contextmenu", function(event) {
+        event.preventDefault();
+    });
+
+    document.addEventListener("keydown", function(event) {
+        if (event.key === "F12" || (event.ctrlKey && event.shiftKey && event.key === "I")) {
+            event.preventDefault();
+        }
+    });
+</script>
